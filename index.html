@@ -1,1 +1,102 @@
-index.html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Zoonosis - 200 Preguntas</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #nav { margin-bottom: 20px; }
+    .nav-button {
+      padding: 8px 12px;
+      margin: 5px 5px 5px 0;
+      background: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .nav-button:hover {
+      background: #1976d2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test Tema 26 - Zoonosis (200 Preguntas)</h1>
+
+  <div id="nav"></div>
+  <div id="quiz-container"></div>
+
+  <script src="script.js"></script>
+  <script>
+    const questionsPerPage = 20;
+    let currentPage = 0;
+
+    function renderNav() {
+      const nav = document.getElementById("nav");
+      for (let i = 0; i < questions.length / questionsPerPage; i++) {
+        const btn = document.createElement("button");
+        btn.className = "nav-button";
+        btn.textContent = `Bloque ${i + 1}`;
+        btn.onclick = () => {
+          currentPage = i;
+          renderQuizPage();
+        };
+        nav.appendChild(btn);
+      }
+    }
+
+    function renderQuizPage() {
+      const container = document.getElementById("quiz-container");
+      container.innerHTML = "";
+      const start = currentPage * questionsPerPage;
+      const end = start + questionsPerPage;
+      const questionsToShow = questions.slice(start, end);
+
+      questionsToShow.forEach((q, index) => {
+        const qDiv = document.createElement("div");
+        qDiv.className = "question";
+        qDiv.id = "q" + (start + index);
+
+        const qTitle = document.createElement("h3");
+        qTitle.textContent = (start + index + 1) + ". " + q.text;
+        qDiv.appendChild(qTitle);
+
+        q.options.forEach(opt => {
+          const optDiv = document.createElement("div");
+          optDiv.className = "option";
+          optDiv.textContent = opt.text;
+          optDiv.onclick = () => checkAnswer(start + index, opt.id, opt.correct);
+          qDiv.appendChild(optDiv);
+        });
+
+        const feedback = document.createElement("div");
+        feedback.className = "feedback";
+        qDiv.appendChild(feedback);
+
+        container.appendChild(qDiv);
+      });
+    }
+
+    function checkAnswer(qIndex, selectedId, isCorrect) {
+      const qDiv = document.getElementById("q" + qIndex);
+      const options = qDiv.querySelectorAll(".option");
+      options.forEach(opt => {
+        opt.onclick = null;
+        if (opt.textContent === questions[qIndex].options.find(o => o.correct).text) {
+          opt.classList.add("correct");
+        } else if (opt.textContent === questions[qIndex].options.find(o => o.id === selectedId).text) {
+          opt.classList.add("incorrect");
+        }
+      });
+
+      const feedback = qDiv.querySelector(".feedback");
+      feedback.textContent = isCorrect ? "✅ ¡Correcto!" : "❌ Incorrecto. " + questions[qIndex].explanation;
+    }
+
+    window.onload = () => {
+      renderNav();
+      renderQuizPage();
+    };
+  </script>
+</body>
+</html>
